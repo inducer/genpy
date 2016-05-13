@@ -1,0 +1,14 @@
+build
+.*.sw[po]
+.swp
+*~
+*.pyc
+*.pyo
+*.egg-info
+MANIFEST
+dist
+setuptools*egg
+setuptools.pth
+setuptools*.tar.gz
+distribute*egg
+distribute*tar.gz
