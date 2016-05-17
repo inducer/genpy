@@ -37,6 +37,62 @@ class Generable(object):
         raise NotImplementedError
 
 
+# {{{ suite
+
+def _flatten_suite(contents):
+    if isinstance(contents, Suite):
+        contents = contents.contents
+    elif isinstance(contents, Generable):
+        return [contents]
+
+    result = []
+    for el in contents:
+        if isinstance(el, Suite):
+            result.extend(_flatten_suite(el))
+        else:
+            result.append(el)
+
+    return result
+
+
+class Suite(Generable):
+    def __init__(self, contents=[]):
+        contents = _flatten_suite(contents)
+
+        self.contents = contents[:]
+
+        for item in contents:
+            assert isinstance(item, Generable)
+
+    def generate(self):
+        for item in self.contents:
+            for item_line in item.generate():
+                yield "    " + item_line
+
+    def append(self, data):
+        self.contents.append(data)
+
+    def extend(self, data):
+        self.contents.extend(data)
+
+    def insert(self, i, data):
+        self.contents.insert(i, data)
+
+    def extend_log_block(self, descr, data):
+        self.contents.append(Comment(descr))
+        self.contents.extend(data)
+        self.contents.append(Line())
+
+
+def suite_if_necessary(contents):
+    if len(contents) == 1:
+        return contents[0]
+    else:
+        return Suite(contents)
+
+# }}}
+
+
 # {{{ struct-like
 
 class Class(Generable):
@@ -57,6 +113,8 @@ class Class(Generable):
             for f_line in f.generate():
                 yield "    " + f_line
 
+# }}}
+
 
 # {{{ control flow/statement stuff
 
@@ -67,6 +125,11 @@ class If(Generable):
         assert isinstance(then_, Generable)
         if else_ is not None:
             assert isinstance(else_, Generable)
+            if not isinstance(else_, Suite):
+                else_ = Suite(else_)
+
+        if not isinstance(then_, Suite):
+            then_ = Suite(then_)
 
         self.then_ = then_
         self.else_ = else_
@@ -139,6 +202,9 @@ class For(Loop):
         self.vars = vars
         self.iterable = iterable
 
+        if not isinstance(body, Suite):
+            body = Suite(body)
+
         super(For, self).__init__(body)
 
     def intro_line(self):
@@ -168,6 +234,24 @@ class Import(Generable):
         yield "import %s" % self.module
 
 
+class ImportAs(Generable):
+    def __init__(self, module, as_):
+        self.module = module
+        self.as_ = as_
+
+    def generate(self):
+        yield "import %s as %s" % (self.module, self.as_)
+
+
+class FromImport(Generable):
+    def __init__(self, module, names):
+        self.module = module
+        self.names = names
+
+    def generate(self):
+        yield "from %s import %s" % (self.module, ", ".join(self.names))
+
+
 class Statement(Generable):
     def __init__(self, text):
         self.text = text
@@ -193,6 +277,38 @@ class Line(Generable):
         yield self.text
 
 
+class Return(Generable):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def generate(self):
+        yield "return %s" % self.expr
+
+
+class Raise(Generable):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def generate(self):
+        yield "raise %s" % self.expr
+
+
+class Assert(Generable):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def generate(self):
+        yield "assert %s" % self.expr
+
+
+class Yield(Generable):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def generate(self):
+        yield "yield %s" % self.expr
+
+
 class Comment(Generable):
     def __init__(self, text):
         self.text = text
@@ -203,43 +319,20 @@ class Comment(Generable):
 # }}}
 
 
-# {{{ suite
+class Function(Generable):
+    def __init__(self, name, args, body):
+        assert isinstance(body, Generable)
+        self.name = name
+        self.args = args
+        if not isinstance(body, Suite):
+            body = Suite(body)
 
-class Suite(Generable):
-    def __init__(self, contents=[]):
-        if(isinstance(contents, Suite)):
-            contents = contents.contents
-        self.contents = contents[:]
-
-        for item in contents:
-            assert isinstance(item, Generable)
+        self.body = body
 
     def generate(self):
-        for item in self.contents:
-            for item_line in item.generate():
-                yield "    " + item_line
+        yield "def %s(%s):" % (self.name, ", ".join(self.args))
 
-    def append(self, data):
-        self.contents.append(data)
-
-    def extend(self, data):
-        self.contents.extend(data)
-
-    def insert(self, i, data):
-        self.contents.insert(i, data)
-
-    def extend_log_block(self, descr, data):
-        self.contents.append(Comment(descr))
-        self.contents.extend(data)
-        self.contents.append(Line())
-
-
-def suite_if_necessary(contents):
-    if len(contents) == 1:
-        return contents[0]
-    else:
-        return Suite(contents)
-
-# }}}
+        for line in self.body.generate():
+            yield line
 
 # vim: fdm=marker
