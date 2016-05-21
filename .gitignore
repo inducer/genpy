@@ -12,3 +12,4 @@ setuptools.pth
 setuptools*.tar.gz
 distribute*egg
 distribute*tar.gz
+sdist
