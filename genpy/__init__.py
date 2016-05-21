@@ -59,6 +59,9 @@ class Suite(Generable):
     def __init__(self, contents=[]):
         contents = _flatten_suite(contents)
 
+        if not contents:
+            contents = [Pass()]
+
         self.contents = contents[:]
 
         for item in contents:
@@ -307,6 +310,11 @@ class Yield(Generable):
 
     def generate(self):
         yield "yield %s" % self.expr
+
+
+class Pass(Generable):
+    def generate(self):
+        yield "pass"
 
 
 class Comment(Generable):
