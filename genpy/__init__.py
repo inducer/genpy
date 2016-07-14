@@ -328,16 +328,20 @@ class Comment(Generable):
 
 
 class Function(Generable):
-    def __init__(self, name, args, body):
+    def __init__(self, name, args, body, decorators=()):
         assert isinstance(body, Generable)
         self.name = name
         self.args = args
         if not isinstance(body, Suite):
             body = Suite(body)
+        self.decorators = decorators
 
         self.body = body
 
     def generate(self):
+        for dec in self.decorators:
+            yield dec
+
         yield "def %s(%s):" % (self.name, ", ".join(self.args))
 
         for line in self.body.generate():
