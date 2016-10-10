@@ -8,7 +8,7 @@ with open("README.rst", "rt") as inf:
 
 setup(
         name="genpy",
-        version="2016.1.2",
+        version="2016.1.3",
         description="C/C++ source generation from an AST",
         long_description=readme,
         classifiers=[
