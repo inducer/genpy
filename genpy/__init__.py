@@ -87,6 +87,13 @@ class Suite(Generable):
         self.contents.append(Line())
 
 
+class Collection(Suite):
+    def generate(self):
+        for item in self.contents:
+            for item_line in item.generate():
+                yield item_line
+
+
 def suite_if_necessary(contents):
     if len(contents) == 1:
         return contents[0]
