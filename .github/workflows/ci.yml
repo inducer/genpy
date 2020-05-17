@@ -22,6 +22,24 @@ jobs:
         -   name: "Main Script"
             run: |
                 curl -L -O -k https://gitlab.tiker.net/inducer/ci-support/raw/master/prepare-and-run-flake8.sh
-                . ./prepare-and-run-flake8.sh ./genpy ./test
+                . ./prepare-and-run-flake8.sh "$(basename $GITHUB_REPOSITORY)"./test
+
+    pytest:
+        name: Pytest on Py${{ matrix.python-version }}
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                python-version: [2.7, 3.6, 3.7, 3.8]
+        steps:
+        -   uses: actions/checkout@v2
+        -
+            uses: actions/setup-python@v1
+            with:
+                python-version: ${{ matrix.python-version }}
+        -   name: "Main Script"
+            run: |
+                EXTRA_INSTALL="numpy scipy"
+                curl -L -O -k https://gitlab.tiker.net/inducer/ci-support/raw/master/build-and-test-py-project.sh
+                . ./build-and-test-py-project.sh
 
 # vim: sw=4
