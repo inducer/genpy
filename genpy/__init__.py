@@ -29,7 +29,7 @@ class Generable(object):
     def __str__(self):
         """Return a single string (possibly containing newlines) representing
         this code construct."""
-        return "\n".join(l.rstrip() for l in self.generate())
+        return "\n".join(line.rstrip() for line in self.generate())
 
     def generate(self):
         """Generate (i.e. yield) the lines making up this code construct."""
@@ -148,8 +148,8 @@ class If(Generable):
         condition_lines = self.condition.split("\n")
         if len(condition_lines) > 1:
             yield "if ("
-            for l in condition_lines:
-                yield "        "+l
+            for line in condition_lines:
+                yield "        "+line
             yield "  ):"
         else:
             yield "if %s:" % self.condition
