@@ -39,3 +39,7 @@ def main():
                 "pytools>=2015.1.2",
                 "numpy>=1.6",
                 ])
+
+
+if __name__ == "__main__":
+    main()
