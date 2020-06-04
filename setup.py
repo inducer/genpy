@@ -7,7 +7,7 @@ def main():
         readme = inf.read()
 
     version_dict = {}
-    init_filename = "boxtree/version.py"
+    init_filename = "genpy/version.py"
     exec(compile(open(init_filename, "r").read(), init_filename, "exec"),
             version_dict)
 
