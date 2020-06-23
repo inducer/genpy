@@ -35,6 +35,7 @@ def main():
             url="http://documen.tician.de/genpy/",
 
             packages=["genpy"],
+            python_requires="~=3.6",
             install_requires=[
                 "pytools>=2015.1.2",
                 "numpy>=1.6",
