@@ -40,7 +40,7 @@ def test_basic_generation():
             )
 
     names = {}
-    exec(compile(str(f), "<generated>", 'exec'), names)
+    exec(compile(str(f), "<generated>", "exec"), names)
 
     yoink = names["yoink"]
 
