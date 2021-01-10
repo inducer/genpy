@@ -3,12 +3,12 @@
 def main():
     from setuptools import setup
 
-    with open("README.rst", "rt") as inf:
+    with open("README.rst") as inf:
         readme = inf.read()
 
     version_dict = {}
     init_filename = "genpy/version.py"
-    exec(compile(open(init_filename, "r").read(), init_filename, "exec"),
+    exec(compile(open(init_filename).read(), init_filename, "exec"),
             version_dict)
 
     setup(

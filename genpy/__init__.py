@@ -1,6 +1,5 @@
 """Generator for Python code."""
 
-from __future__ import division, absolute_import, print_function
 
 __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
@@ -25,7 +24,7 @@ THE SOFTWARE.
 """
 
 
-class Generable(object):
+class Generable:
     def __str__(self):
         """Return a single string (possibly containing newlines) representing
         this code construct."""
@@ -90,8 +89,7 @@ class Suite(Generable):
 class Collection(Suite):
     def generate(self):
         for item in self.contents:
-            for item_line in item.generate():
-                yield item_line
+            yield from item.generate()
 
 
 def suite_if_necessary(contents):
@@ -118,7 +116,7 @@ class Class(Generable):
         if not bases:
             bases = ["object"]
 
-        yield "class %s(%s)" % (self.name, ", ".join(bases))
+        yield "class {}({})".format(self.name, ", ".join(bases))
         for f in self.attributes:
             for f_line in f.generate():
                 yield "    " + f_line
@@ -172,8 +170,7 @@ class Loop(Generable):
         if self.intro_line() is not None:
             yield self.intro_line()
 
-        for line in self.body.generate():
-            yield line
+        yield from self.body.generate()
 
         if self.outro_line() is not None:
             yield self.outro_line()
@@ -198,7 +195,7 @@ class CustomLoop(Loop):
 class While(Loop):
     def __init__(self, condition, body):
         self.condition = condition
-        super(While, self).__init__(body)
+        super().__init__(body)
 
     def intro_line(self):
         return "while (%s):" % self.condition
@@ -215,10 +212,10 @@ class For(Loop):
         if not isinstance(body, Suite):
             body = Suite(body)
 
-        super(For, self).__init__(body)
+        super().__init__(body)
 
     def intro_line(self):
-        return "for %s in %s:" % (", ".join(self.vars), self.iterable)
+        return "for {} in {}:".format(", ".join(self.vars), self.iterable)
 
 
 def make_multiple_ifs(conditions_and_blocks, base=None):
@@ -250,7 +247,7 @@ class ImportAs(Generable):
         self.as_ = as_
 
     def generate(self):
-        yield "import %s as %s" % (self.module, self.as_)
+        yield f"import {self.module} as {self.as_}"
 
 
 class FromImport(Generable):
@@ -259,7 +256,7 @@ class FromImport(Generable):
         self.names = names
 
     def generate(self):
-        yield "from %s import %s" % (self.module, ", ".join(self.names))
+        yield "from {} import {}".format(self.module, ", ".join(self.names))
 
 
 class Statement(Generable):
@@ -276,7 +273,7 @@ class Assign(Generable):
         self.rvalue = rvalue
 
     def generate(self):
-        yield "%s = %s" % (self.lvalue, self.rvalue)
+        yield f"{self.lvalue} = {self.rvalue}"
 
 
 class Line(Generable):
@@ -346,12 +343,10 @@ class Function(Generable):
         self.body = body
 
     def generate(self):
-        for dec in self.decorators:
-            yield dec
+        yield from self.decorators
 
-        yield "def %s(%s):" % (self.name, ", ".join(self.args))
+        yield "def {}({}):".format(self.name, ", ".join(self.args))
 
-        for line in self.body.generate():
-            yield line
+        yield from self.body.generate()
 
 # vim: fdm=marker
