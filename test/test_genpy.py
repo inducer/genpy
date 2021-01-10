@@ -1,5 +1,3 @@
-from __future__ import division, absolute_import, print_function
-
 __copyright__ = "Copyright (C) 2020 Andreas Kloeckner"
 
 __license__ = """
@@ -40,7 +38,7 @@ def test_basic_generation():
             )
 
     names = {}
-    exec(compile(str(f), "<generated>", 'exec'), names)
+    exec(compile(str(f), "<generated>", "exec"), names)
 
     yoink = names["yoink"]
 
