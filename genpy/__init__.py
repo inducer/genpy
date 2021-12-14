@@ -1,7 +1,37 @@
-"""Generator for Python code."""
+"""
+.. autoclass:: Generable
+.. autoclass:: Suite
+.. autoclass:: Collection
 
+Block nodes
+-----------
 
-__copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
+.. autoclass:: Class
+.. autoclass:: If
+.. autoclass:: Loop
+.. autoclass:: CustomLoop
+.. autoclass:: While
+.. autoclass:: For
+.. autoclass:: Function
+.. autofunction:: make_multiple_ifs
+
+Single (logical) line Nodes
+---------------------------
+.. autoclass:: Import
+.. autoclass:: ImportAs
+.. autoclass:: FromImport
+.. autoclass:: Statement
+.. autoclass:: Assign
+.. autoclass:: Line
+.. autoclass:: Return
+.. autoclass:: Raise
+.. autoclass:: Assert
+.. autoclass:: Yield
+.. autoclass:: Pass
+.. autoclass:: Comment
+"""
+
+__copyright__ = "Copyright (C) 2015 Andreas Kloeckner"
 
 __license__ = """
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,17 +53,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+from abc import ABC, abstractmethod
 
-class Generable:
+
+class Generable(ABC):
+    """A base class for AST nodes capable of generating code.
+
+    .. automethod:: __str__
+    .. automethod:: generate
+    """
     def __str__(self):
         """Return a single string (possibly containing newlines) representing
         this code construct."""
         return "\n".join(line.rstrip() for line in self.generate())
 
+    @abstractmethod
     def generate(self):
         """Generate (i.e. yield) the lines making up this code construct."""
-
-        raise NotImplementedError
 
 
 # {{{ suite
@@ -55,7 +91,17 @@ def _flatten_suite(contents):
 
 
 class Suite(Generable):
-    def __init__(self, contents=[]):
+    """
+    .. automethod:: __init__
+    .. automethod:: generate
+    .. automethod:: append
+    .. automethod:: extend
+    .. automethod:: insert
+    .. automethod:: extend_log_block
+    """
+    def __init__(self, contents=None):
+        if contents is None:
+            contents = []
         contents = _flatten_suite(contents)
 
         if not contents:
@@ -87,6 +133,10 @@ class Suite(Generable):
 
 
 class Collection(Suite):
+    """
+    Inherits from :class:`Suite`, but does not lead to indentation.
+    """
+
     def generate(self):
         for item in self.contents:
             yield from item.generate()
@@ -104,7 +154,10 @@ def suite_if_necessary(contents):
 # {{{ struct-like
 
 class Class(Generable):
-    """A class definition."""
+    """A class definition. Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
 
     def __init__(self, name, bases, attributes):
         self.name = name
@@ -127,6 +180,10 @@ class Class(Generable):
 # {{{ control flow/statement stuff
 
 class If(Generable):
+    """An ```if/then/else`` block. Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, condition, then_, else_=None):
         self.condition = condition
 
@@ -161,7 +218,14 @@ class If(Generable):
                 yield line
 
 
-class Loop(Generable):
+class Loop(Generable, ABC):
+    """An abstract base class for loops. class for loop blocks. Inherits from
+    :class:`Generable`.
+
+    .. automethod:: __init__
+    .. automethod:: intro_line
+    .. automethod:: outro_line
+    """
     def __init__(self, body):
         assert isinstance(body, Generable)
         self.body = body
@@ -175,11 +239,21 @@ class Loop(Generable):
         if self.outro_line() is not None:
             yield self.outro_line()
 
+    @abstractmethod
+    def intro_line(self):
+        return None
+
     def outro_line(self):
         return None
 
 
 class CustomLoop(Loop):
+    """
+    Inherits from :class:`Loop`.
+
+    .. automethod:: __init__
+    """
+
     def __init__(self, intro_line, body, outro_line=None):
         self.intro_line_ = intro_line
         self.body = body
@@ -193,6 +267,11 @@ class CustomLoop(Loop):
 
 
 class While(Loop):
+    """
+    Inherits from :class:`Loop`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, condition, body):
         self.condition = condition
         super().__init__(body)
@@ -202,6 +281,11 @@ class While(Loop):
 
 
 class For(Loop):
+    """
+    Inherits from :class:`Loop`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, vars, iterable, body):
         if not isinstance(vars, tuple):
             vars = (vars,)
@@ -234,6 +318,12 @@ def make_multiple_ifs(conditions_and_blocks, base=None):
 # {{{ simple statements
 
 class Import(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
+
     def __init__(self, module):
         self.module = module
 
@@ -242,6 +332,11 @@ class Import(Generable):
 
 
 class ImportAs(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, module, as_):
         self.module = module
         self.as_ = as_
@@ -251,6 +346,11 @@ class ImportAs(Generable):
 
 
 class FromImport(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, module, names):
         self.module = module
         self.names = names
@@ -260,6 +360,11 @@ class FromImport(Generable):
 
 
 class Statement(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, text):
         self.text = text
 
@@ -268,6 +373,11 @@ class Statement(Generable):
 
 
 class Assign(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, lvalue, rvalue):
         self.lvalue = lvalue
         self.rvalue = rvalue
@@ -277,6 +387,11 @@ class Assign(Generable):
 
 
 class Line(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, text=""):
         self.text = text
 
@@ -285,6 +400,11 @@ class Line(Generable):
 
 
 class Return(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, expr):
         self.expr = expr
 
@@ -293,6 +413,11 @@ class Return(Generable):
 
 
 class Raise(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, expr):
         self.expr = expr
 
@@ -301,6 +426,11 @@ class Raise(Generable):
 
 
 class Assert(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, expr):
         self.expr = expr
 
@@ -309,6 +439,11 @@ class Assert(Generable):
 
 
 class Yield(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, expr):
         self.expr = expr
 
@@ -317,11 +452,21 @@ class Yield(Generable):
 
 
 class Pass(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def generate(self):
         yield "pass"
 
 
 class Comment(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, text):
         self.text = text
 
@@ -332,6 +477,11 @@ class Comment(Generable):
 
 
 class Function(Generable):
+    """
+    Inherits from :class:`Generable`.
+
+    .. automethod:: __init__
+    """
     def __init__(self, name, args, body, decorators=()):
         assert isinstance(body, Generable)
         self.name = name
