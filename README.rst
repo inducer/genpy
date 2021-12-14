@@ -16,8 +16,7 @@ generation from Python.
 
 Places on the web related to genpy:
 
-* `Python package index <http://pypi.python.org/pypi/genpy>`_ (download releases)
-
+* `Python package index <http://pypi.org/project/genpy>`_ (download releases)
 * `Documentation <http://documen.tician.de/genpy>`_ (read how things work)
 * `Github <http://github.com/inducer/genpy>`_ (get latest source code, file bugs)
 
