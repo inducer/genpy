@@ -169,7 +169,7 @@ class Class(Generable):
         if not bases:
             bases = ["object"]
 
-        yield "class {}({})".format(self.name, ", ".join(bases))
+        yield "class {}({}):".format(self.name, ", ".join(bases))
         for f in self.attributes:
             for f_line in f.generate():
                 yield "    " + f_line
