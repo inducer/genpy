@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Kloeckner"
+  given-names: "Andreas"
+  orcid: "https://orcid.org/0000-0003-1228-519X"
+- family-names: "Wala"
+  given-names: "Matt"
+- family-names: "Heavey"
+  given-names: "Kevin"
+
+title: "genpy"
+version: 2022.1
+doi: 10.5281/zenodo.6991527
+date-released: 2022-08-14
+url: "https://github.com/inducer/genpy"
