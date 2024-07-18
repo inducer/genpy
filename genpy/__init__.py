@@ -207,7 +207,7 @@ class If(Generable):
                 yield "        "+line
             yield "  ):"
         else:
-            yield "if %s:" % self.condition
+            yield f"if {self.condition}:"
 
         for line in self.then_.generate():
             yield line
@@ -277,7 +277,7 @@ class While(Loop):
         super().__init__(body)
 
     def intro_line(self):
-        return "while (%s):" % self.condition
+        return f"while ({self.condition}):"
 
 
 class For(Loop):
@@ -328,7 +328,7 @@ class Import(Generable):
         self.module = module
 
     def generate(self):
-        yield "import %s" % self.module
+        yield f"import {self.module}"
 
 
 class ImportAs(Generable):
@@ -409,7 +409,7 @@ class Return(Generable):
         self.expr = expr
 
     def generate(self):
-        yield "return %s" % self.expr
+        yield f"return {self.expr}"
 
 
 class Raise(Generable):
@@ -422,7 +422,7 @@ class Raise(Generable):
         self.expr = expr
 
     def generate(self):
-        yield "raise %s" % self.expr
+        yield f"raise {self.expr}"
 
 
 class Assert(Generable):
@@ -435,7 +435,7 @@ class Assert(Generable):
         self.expr = expr
 
     def generate(self):
-        yield "assert %s" % self.expr
+        yield f"assert {self.expr}"
 
 
 class Yield(Generable):
@@ -448,7 +448,7 @@ class Yield(Generable):
         self.expr = expr
 
     def generate(self):
-        yield "yield %s" % self.expr
+        yield f"yield {self.expr}"
 
 
 class Pass(Generable):
@@ -471,7 +471,7 @@ class Comment(Generable):
         self.text = text
 
     def generate(self):
-        yield "# %s" % self.text
+        yield f"# {self.text}"
 
 # }}}
 
