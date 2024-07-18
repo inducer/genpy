@@ -78,7 +78,7 @@ docstring-quotes = "double"
 inline-quotes = "double"
 multiline-quotes = "double"
 
-[tool.ruff.lint.isor]
+[tool.ruff.lint.isort]
 combine-as-imports = true
 known-first-party = [ "pytools" ]
 known-local-folder = [ "genpy" ]
