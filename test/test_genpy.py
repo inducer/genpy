@@ -20,8 +20,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import genpy as gp
 import sys
+
+import genpy as gp
 
 
 def test_basic_generation():
