@@ -1,8 +1,6 @@
 [build-system]
-build-backend = "setuptools.build_meta"
-requires = [
-    "setuptools>=63",
-]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "genpy"
@@ -40,11 +38,6 @@ test = [
 [project.urls]
 Documentation = "https://documen.tician.de/genpy"
 Homepage = "https://github.com/inducer/genpy"
-
-[tool.setuptools.packages.find]
-include = [
-    "genpy*",
-]
 
 [tool.ruff]
 preview = true
