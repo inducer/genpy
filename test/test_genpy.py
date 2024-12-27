@@ -21,11 +21,12 @@ THE SOFTWARE.
 """
 
 import sys
+from collections.abc import Callable
 
 import genpy as gp
 
 
-def test_basic_generation():
+def test_basic_generation() -> None:
     f = gp.Function(
             "yoink", "x",
             gp.If(
@@ -38,7 +39,7 @@ def test_basic_generation():
                 )
             )
 
-    names = {}
+    names: dict[str, Callable[[int], int]] = {}
     exec(compile(str(f), "<generated>", "exec"), names)
 
     yoink = names["yoink"]
