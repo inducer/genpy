@@ -28,23 +28,22 @@ jobs:
                 pip install ruff
                 ruff check
 
-    mypy:
-        name: Mypy
+    basedpyright:
         runs-on: ubuntu-latest
+
         steps:
         -   uses: actions/checkout@v4
-        -
-            uses: actions/setup-python@v5
+        -   uses: actions/setup-python@v5
             with:
                 python-version: '3.x'
         -   name: "Main Script"
             run: |
-                EXTRA_INSTALL="mypy pytest"
+                EXTRA_INSTALL="basedpyright pytest"
                 curl -L -O https://tiker.net/ci-support-v0
                 . ./ci-support-v0
 
                 build_py_project_in_venv
-                python -m mypy genpy test
+                basedpyright
 
     pytest:
         name: Pytest on Py${{ matrix.python-version }}
