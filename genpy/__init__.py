@@ -79,6 +79,8 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable, Iterator, Sequence
 from typing import Literal
 
+from typing_extensions import override
+
 
 class Generable(ABC):
     """A base class for AST nodes capable of generating code.
@@ -87,6 +89,7 @@ class Generable(ABC):
     .. automethod:: generate
     """
 
+    @override
     def __str__(self) -> str:
         """Return a single string (possibly containing newlines) representing
         this code construct."""
@@ -107,7 +110,7 @@ def _flatten_suite(contents: Iterable[Generable] | Generable) -> list[Generable]
 
     assert not isinstance(contents, Generable)
 
-    result = []
+    result: list[Generable] = []
     for el in contents:
         if isinstance(el, Suite):
             result.extend(_flatten_suite(el))
@@ -135,11 +138,12 @@ class Suite(Generable):
         if not contents:
             contents = [Pass()]
 
-        self.contents = contents[:]
+        self.contents: list[Generable] = list(contents)
 
         for item in contents:
             assert isinstance(item, Generable)
 
+    @override
     def generate(self) -> Iterator[str]:
         for item in self.contents:
             for item_line in item.generate():
@@ -163,6 +167,7 @@ class Suite(Generable):
 class Collection(Suite):
     """Like :class:`Suite`, but does not lead to indentation."""
 
+    @override
     def generate(self) -> Iterator[str]:
         for item in self.contents:
             yield from item.generate()
@@ -189,10 +194,11 @@ class Class(Generable):
                  name: str,
                  bases: Iterable[str],
                  attributes: Iterable[Generable]) -> None:
-        self.name = name
-        self.bases = tuple(bases)
-        self.attributes = tuple(attributes)
+        self.name: str = name
+        self.bases: tuple[str, ...] = tuple(bases)
+        self.attributes: tuple[Generable, ...] = tuple(attributes)
 
+    @override
     def generate(self) -> Iterator[str]:
         bases = self.bases
         if not bases:
@@ -227,10 +233,11 @@ class If(Generable):
             if not isinstance(else_, Suite):
                 else_ = Suite(else_)
 
-        self.condition = condition
-        self.then_ = then_
-        self.else_ = else_
+        self.condition: str = condition
+        self.then_: Suite = then_
+        self.else_: Suite | None = else_
 
+    @override
     def generate(self) -> Iterator[str]:
         condition_lines = self.condition.split("\n")
         if len(condition_lines) > 1:
@@ -260,8 +267,9 @@ class Loop(Generable, ABC):
 
     def __init__(self, body: Generable) -> None:
         assert isinstance(body, Generable)
-        self.body = body
+        self.body: Generable = body
 
+    @override
     def generate(self) -> Iterator[str]:
         intro_line = self.intro_line()
         if intro_line is not None:
@@ -291,12 +299,14 @@ class CustomLoop(Loop):
                  body: Generable,
                  outro_line: str | None = None) -> None:
         super().__init__(body)
-        self.intro_line_ = intro_line
-        self.outro_line_ = outro_line
+        self.intro_line_: str | None = intro_line
+        self.outro_line_: str | None = outro_line
 
+    @override
     def intro_line(self) -> str | None:
         return self.intro_line_
 
+    @override
     def outro_line(self) -> str | None:
         return self.outro_line_
 
@@ -307,9 +317,10 @@ class While(Loop):
     """
 
     def __init__(self, condition: str, body: Generable):
-        self.condition = condition
+        self.condition: str = condition
         super().__init__(body)
 
+    @override
     def intro_line(self) -> str | None:
         return f"while ({self.condition}):"
 
@@ -330,9 +341,10 @@ class For(Loop):
             body = Suite(body)
 
         super().__init__(body)
-        self.vars = vars
-        self.iterable = iterable
+        self.vars: tuple[str, ...] = vars
+        self.iterable: str = iterable
 
+    @override
     def intro_line(self) -> str | None:
         return "for {} in {}:".format(", ".join(self.vars), self.iterable)
 
@@ -360,8 +372,9 @@ class Import(Generable):
     """
 
     def __init__(self, module: str) -> None:
-        self.module = module
+        self.module: str = module
 
+    @override
     def generate(self) -> Iterator[str]:
         yield f"import {self.module}"
 
@@ -372,9 +385,10 @@ class ImportAs(Generable):
     """
 
     def __init__(self, module: str, as_: str) -> None:
-        self.module = module
-        self.as_ = as_
+        self.module: str = module
+        self.as_: str = as_
 
+    @override
     def generate(self) -> Iterator[str]:
         yield f"import {self.module} as {self.as_}"
 
@@ -385,9 +399,10 @@ class FromImport(Generable):
     """
 
     def __init__(self, module: str, names: Iterable[str]) -> None:
-        self.module = module
-        self.names = tuple(names)
+        self.module: str = module
+        self.names: tuple[str, ...] = tuple(names)
 
+    @override
     def generate(self) -> Iterator[str]:
         yield "from {} import {}".format(self.module, ", ".join(self.names))
 
@@ -398,8 +413,9 @@ class Statement(Generable):
     """
 
     def __init__(self, text: str) -> None:
-        self.text = text
+        self.text: str = text
 
+    @override
     def generate(self) -> Iterator[str]:
         yield self.text
 
@@ -410,9 +426,10 @@ class Assign(Generable):
     """
 
     def __init__(self, lvalue: str, rvalue: str) -> None:
-        self.lvalue = lvalue
-        self.rvalue = rvalue
+        self.lvalue: str = lvalue
+        self.rvalue: str = rvalue
 
+    @override
     def generate(self) -> Iterator[str]:
         yield f"{self.lvalue} = {self.rvalue}"
 
@@ -423,8 +440,9 @@ class Line(Generable):
     """
 
     def __init__(self, text: str = "") -> None:
-        self.text = text
+        self.text: str = text
 
+    @override
     def generate(self) -> Iterator[str]:
         yield self.text
 
@@ -435,8 +453,9 @@ class Return(Generable):
     """
 
     def __init__(self, expr: str) -> None:
-        self.expr = expr
+        self.expr: str = expr
 
+    @override
     def generate(self) -> Iterator[str]:
         yield f"return {self.expr}"
 
@@ -447,8 +466,9 @@ class Raise(Generable):
     """
 
     def __init__(self, expr: str) -> None:
-        self.expr = expr
+        self.expr: str = expr
 
+    @override
     def generate(self) -> Iterator[str]:
         yield f"raise {self.expr}"
 
@@ -459,8 +479,9 @@ class Assert(Generable):
     """
 
     def __init__(self, expr: str) -> None:
-        self.expr = expr
+        self.expr: str = expr
 
+    @override
     def generate(self) -> Iterator[str]:
         yield f"assert {self.expr}"
 
@@ -471,8 +492,9 @@ class Yield(Generable):
     """
 
     def __init__(self, expr: str) -> None:
-        self.expr = expr
+        self.expr: str = expr
 
+    @override
     def generate(self) -> Iterator[str]:
         yield f"yield {self.expr}"
 
@@ -482,6 +504,7 @@ class Pass(Generable):
     .. automethod:: __init__
     """
 
+    @override
     def generate(self) -> Iterator[str]:
         yield "pass"
 
@@ -492,8 +515,9 @@ class Comment(Generable):
     """
 
     def __init__(self, text: str) -> None:
-        self.text = text
+        self.text: str = text
 
+    @override
     def generate(self) -> Iterator[str]:
         yield f"# {self.text}"
 
@@ -514,11 +538,12 @@ class Function(Generable):
         if not isinstance(body, Suite):
             body = Suite(body)
 
-        self.name = name
-        self.args = tuple(args)
-        self.decorators = tuple(decorators)
-        self.body = body
+        self.name: str = name
+        self.args: tuple[str, ...] = tuple(args)
+        self.decorators: tuple[str, ...] = tuple(decorators)
+        self.body: Suite = body
 
+    @override
     def generate(self) -> Iterator[str]:
         yield from self.decorators
 
