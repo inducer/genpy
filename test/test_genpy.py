@@ -53,6 +53,6 @@ if __name__ == "__main__":
         exec(sys.argv[1])
     else:
         from pytest import main
-        main([__file__])
+        _ = main([__file__])
 
 # vim: fdm=marker
