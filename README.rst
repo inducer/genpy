@@ -4,10 +4,10 @@ GenPy: An AST for Python
 .. image:: https://gitlab.tiker.net/inducer/genpy/badges/main/pipeline.svg
     :alt: Gitlab Build Status
     :target: https://gitlab.tiker.net/inducer/genpy/commits/main
-.. image:: https://github.com/inducer/genpy/workflows/CI/badge.svg?branch=main&event=push
+.. image:: https://github.com/inducer/genpy/actions/workflows/ci.yml/badge.svg
     :alt: Github Build Status
-    :target: https://github.com/inducer/genpy/actions?query=branch%3Amain+workflow%3ACI+event%3Apush
-.. image:: https://badge.fury.io/py/genpy.png
+    :target: https://github.com/inducer/genpy/actions/workflows/ci.yml
+.. image:: https://badge.fury.io/py/genpy.svg
     :alt: Python Package Index Release Page
     :target: https://pypi.org/project/genpy/
 .. image:: https://zenodo.org/badge/58979871.svg
