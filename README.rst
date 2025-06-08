@@ -10,9 +10,9 @@ GenPy: An AST for Python
 .. image:: https://badge.fury.io/py/genpy.svg
     :alt: Python Package Index Release Page
     :target: https://pypi.org/project/genpy/
-.. image:: https://zenodo.org/badge/58979871.svg
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6991526.svg
     :alt: Zenodo DOI for latest release
-    :target: https://zenodo.org/badge/latestdoi/58979871
+    :target: https://doi.org/10.5281/zenodo.6991526
 
 genpy offers a simple abstract syntax tree for Python to allow structured code
 generation from Python.
